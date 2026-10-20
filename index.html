@@ -58,4 +58,5 @@ $('begin').addEventListener('click',start);$('resume').addEventListener('click',
 window.addEventListener('resize',()=>{if(camera&&renderer){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);if(started&&!paused)$('touchControls').style.display=innerWidth<900?'flex':'none'}});
 makeWorld();bindTouch();animate();
 </script>
+<script src="./device-controls.js" defer></script>
 </body></html>
