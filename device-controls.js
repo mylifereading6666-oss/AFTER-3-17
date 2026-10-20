@@ -38,18 +38,34 @@
     padReady = Array.from(navigator.getGamepads?.() || []).some(Boolean);
   });
   let lastInteract = false, lastPause = false;
+  const virtualKeys = new Set();
+  function setVirtualKey(code, down) {
+    if (down && !virtualKeys.has(code)) {
+      virtualKeys.add(code);
+      document.dispatchEvent(new KeyboardEvent("keydown", { code, bubbles: true, cancelable: true }));
+    } else if (!down && virtualKeys.has(code)) {
+      virtualKeys.delete(code);
+      document.dispatchEvent(new KeyboardEvent("keyup", { code, bubbles: true, cancelable: true }));
+    }
+  }
   function pollGamepad() {
-    if (padReady && window.gameStartedForControls) {
+    if (padReady) {
       const pads = Array.from(navigator.getGamepads?.() || []);
       const pad = pads.find(Boolean);
       if (pad) {
         const dead = v => Math.abs(v) < 0.18 ? 0 : v;
         const x = dead(pad.axes[0] || 0), y = dead(pad.axes[1] || 0);
-        window.dispatchEvent(new CustomEvent("adaptivegamepadmove", { detail: { x, y, lookX: dead(pad.axes[2] || 0), lookY: dead(pad.axes[3] || 0) } }));
+        setVirtualKey("KeyW", y < -0.25 || !!pad.buttons[12]?.pressed);
+        setVirtualKey("KeyS", y > 0.25 || !!pad.buttons[13]?.pressed);
+        setVirtualKey("KeyA", x < -0.25 || !!pad.buttons[14]?.pressed);
+        setVirtualKey("KeyD", x > 0.25 || !!pad.buttons[15]?.pressed);
+        const lookX = dead(pad.axes[2] || 0);
+        setVirtualKey("ArrowLeft", lookX < -0.25);
+        setVirtualKey("ArrowRight", lookX > 0.25);
         const interact = !!pad.buttons[0]?.pressed;
         const pause = !!pad.buttons[9]?.pressed;
-        if (interact && !lastInteract) document.getElementById("touchUse")?.click();
-        if (pause && !lastPause) document.getElementById("touchPause")?.click();
+        if (interact && !lastInteract) document.getElementById("touchUse")?.click() || document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyE", bubbles: true }));
+        if (pause && !lastPause) document.getElementById("touchPause")?.click() || document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyP", bubbles: true }));
         lastInteract = interact; lastPause = pause;
       }
     }
