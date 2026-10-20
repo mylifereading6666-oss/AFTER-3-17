@@ -64,8 +64,16 @@
         setVirtualKey("ArrowRight", lookX > 0.25);
         const interact = !!pad.buttons[0]?.pressed;
         const pause = !!pad.buttons[9]?.pressed;
-        if (interact && !lastInteract) document.getElementById("touchUse")?.click() || document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyE", bubbles: true }));
-        if (pause && !lastPause) document.getElementById("touchPause")?.click() || document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyP", bubbles: true }));
+        if (interact && !lastInteract) {
+          const useButton = document.getElementById("touchUse");
+          if (useButton) useButton.click();
+          else document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyE", bubbles: true }));
+        }
+        if (pause && !lastPause) {
+          const pauseButton = document.getElementById("touchPause");
+          if (pauseButton) pauseButton.click();
+          else document.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyP", bubbles: true }));
+        }
         lastInteract = interact; lastPause = pause;
       }
     }
